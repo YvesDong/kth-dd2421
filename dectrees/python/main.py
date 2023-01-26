@@ -57,7 +57,9 @@ for i in range (0,6):
 print(G_monk1)
 
 # # split dataset1 into 4 parts based on attribute 5
-# NumValAttr5 = len(m.attributes[4].values)
+# splitAttri_l0_monk1 = splitAttri_l0[0]
+# print(splitAttri_l0_monk1)
+# NumValAttr5 = len(m.attributes[splitAttri_l0_monk1].values)
 # monk1_l1 = []
 # for i in range(NumValAttr5):
 #     monk1_l1.append(fun.select(m.monk1, m.attributes[4], m.attributes[4].values[i]))
@@ -74,7 +76,7 @@ print(G_monk1)
 
 # # print(G_monk_l1)
 # splitAttri_l1 = np.argmax(G_monk_l1[1:], axis=1)
-# for i in range(3):
+# for i in range(NumValAttr5-1):
 #     print("Node {} in Layer 1 can be splitted by attribute {}. Its majority class is {}".format(i+1, m.attributes[splitAttri_l1[i]].name, fun.mostCommon(monk1_l1[i+1])))
 
 # # build and draw tree with predefined function
@@ -97,7 +99,7 @@ print("Monk-3, E_train: ", 1-fun.check(tree3, m.monk3))
 print("Monk-3, E_test: ", 1-fun.check(tree3, m.monk3test))
 
 
-
+##### ASSIGNMENT 7 ###########################################################
 
 
 
