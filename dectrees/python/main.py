@@ -9,6 +9,8 @@ import monkdata as m
 import dtree as fun
 import numpy as np
 import drawtree_qt5 as draw
+import random
+import matplotlib.pyplot as plt
 
 NumAttributes = len(m.attributes)
 
@@ -100,12 +102,47 @@ print("Monk-3, E_test: ", 1-fun.check(tree3, m.monk3test))
 
 
 ##### ASSIGNMENT 7 ###########################################################
+fractions = [.3, .4, .5, .6, .7, .8]
+fraction = .8
+numRepeat = 12
 
+def partition(data, fraction):
+    "divide the training set to training & validation"
+    ldata = list(data)
+    random.shuffle(ldata)
+    breakPoint = int(len(ldata) * fraction)
+    return ldata[:breakPoint], ldata[breakPoint:]
 
+error_test1 = np.zeros((len(fractions), numRepeat))
+for f in range(len(fractions)):
+    for r in range(numRepeat):
+        monk1train, monk1val = partition(m.monk1, fractions[f])
+        tree1init = fun.buildTree(monk1train, m.attributes)
 
+        tree_curr = tree1init
+        error_curr = 1 - fun.check(tree_curr, monk1val)
+        while True:
+            alternatives = fun.allPruned(tree_curr)
+            error = []
+            
+            for i in range(len(alternatives)):
+                error.append(1-fun.check(alternatives[i], monk1val))
 
+            if error_curr > np.min(error):
+                # print("curr error: ", np.min(error))
+                idx = np.argmin(error) # the tree that performs best on val set
+                tree_curr = alternatives[idx]
+                error_curr = np.min(error)
+            else:
+                break
 
+        error_test1[f,r] = 1 - fun.check(tree_curr, m.monk1test)
 
+# mean and variance of error for Monk-1
+mean1 = np.mean(error_test1, axis=1)
+var1 = np.var(error_test1, axis=1)
+std1 = np.sqrt(var1)
 
-
-
+# plots
+plt.errorbar(fractions, mean1, std1, linestyle='-', marker='*', ecolor='r')
+plt.show()
