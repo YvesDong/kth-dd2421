@@ -123,6 +123,7 @@ def partition(data, fraction):
     return ldata[:breakPoint], ldata[breakPoint:]
 
 errorTest = np.zeros((numSets, len(fractions), numRepeat))
+errorTestUnpruned = np.zeros((numSets, len(fractions), numRepeat))
 for f in range(len(fractions)):
     for r in range(numRepeat):
         for s in range(numSets):
@@ -131,13 +132,17 @@ for f in range(len(fractions)):
 
             treeCurr = treeInit
             errorCurr = 1 - fun.check(treeCurr, monkval)
+
+            # keep pruning until errors of pruned trees are higher 
             while True:
                 alternatives = fun.allPruned(treeCurr)
                 error = []
                 
+                # record all errors
                 for i in range(len(alternatives)):
                     error.append(1-fun.check(alternatives[i], monkval))
 
+                # condition of jumping out
                 if errorCurr > np.min(error):
                     # print("curr error: ", np.min(error))
                     idx = np.argmin(error) # the tree that performs best on val set
@@ -145,24 +150,38 @@ for f in range(len(fractions)):
                     errorCurr = np.min(error)
                 else:
                     break
-
+            
+            # results
             errorTest[s,f,r] = 1 - fun.check(treeCurr, dsetTest[s])
+            errorTestUnpruned[s,f,r] = 1 - fun.check(treeInit, dsetTest[s])
 
-# mean and variance of error for Monk-1
+# mean and std of error
+# pruned - Monk1,3
 mean1 = np.mean(errorTest[0,:,:], axis=1)
-var1 = np.var(errorTest[0,:,:], axis=1)
-std1 = np.sqrt(var1)
+std1 = np.std(errorTest[0,:,:], axis=1)
 mean2 = np.mean(errorTest[1,:,:], axis=1)
-var2 = np.var(errorTest[1,:,:], axis=1)
-std2 = np.sqrt(var2)
+std2 = np.std(errorTest[1,:,:], axis=1)
+# unpruned - Monk1,3
+mean1u = np.mean(errorTestUnpruned[0,:,:], axis=1)
+std1u = np.std(errorTestUnpruned[0,:,:], axis=1)
+mean2u = np.mean(errorTestUnpruned[1,:,:], axis=1)
+std2u = np.std(errorTestUnpruned[1,:,:], axis=1)
 
 # plots
-_, caps1, bars1 = plt.errorbar(fractions, mean1, std1, linestyle='-', color='b', marker='*', ecolor='b', capsize=2, capthick=2, label="monk1")
-_, caps2, bars2 = plt.errorbar(fractions, mean2, std2, linestyle='-', color='r', marker='*', ecolor='r', capsize=2, capthick=2, label="monk3")
-[bar1.set_alpha(0.3) for bar1 in bars1]
-[cap1.set_alpha(0.3) for cap1 in caps1]
-[bar2.set_alpha(0.3) for bar2 in bars2]
-[cap2.set_alpha(0.3) for cap2 in caps2]
+# pruned
+_, caps1, bars1 = plt.errorbar(fractions, mean1, std1, linestyle='-', color='b', marker='*', ecolor='b', capsize=2, capthick=2, label="monk1-pruned")
+_, caps2, bars2 = plt.errorbar(fractions, mean2, std2, linestyle='-', color='r', marker='*', ecolor='r', capsize=2, capthick=2, label="monk3-pruned")
+[bar1.set_alpha(0.5) for bar1 in bars1]
+[cap1.set_alpha(0.5) for cap1 in caps1]
+[bar2.set_alpha(0.5) for bar2 in bars2]
+[cap2.set_alpha(0.5) for cap2 in caps2]
+# unpruned
+_, caps1u, bars1u = plt.errorbar(fractions, mean1u, std1u, linestyle='-', color='cornflowerblue', marker='*', ecolor='cornflowerblue', capsize=2, capthick=2, label="monk1-unpruned")
+_, caps2u, bars2u = plt.errorbar(fractions, mean2u, std2u, linestyle='-', color='salmon', marker='*', ecolor='salmon', capsize=2, capthick=2, label="monk3-unpruned")
+[bar1.set_alpha(0.3) for bar1 in bars1u]
+[cap1.set_alpha(0.3) for cap1 in caps1u]
+[bar2.set_alpha(0.3) for bar2 in bars2u]
+[cap2.set_alpha(0.3) for cap2 in caps2u]
 
 print("\nASSIGNMENT 7: \nsee the plots of dtree pruning: ")
 plt.title("Decision tree pruning - Classification error on the test set")
