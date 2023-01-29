@@ -103,8 +103,11 @@ print("Monk-3, E_test: ", 1-fun.check(tree3, m.monk3test))
 
 ##### ASSIGNMENT 7 ###########################################################
 fractions = [.3, .4, .5, .6, .7, .8]
-fraction = .8
-numRepeat = 12
+# fraction = .8
+numRepeat = 30
+dset = [m.monk1, m.monk3]
+dsetTest = [m.monk1test, m.monk3test]
+numSets = len(dset)
 
 def partition(data, fraction):
     "divide the training set to training & validation"
@@ -113,36 +116,52 @@ def partition(data, fraction):
     breakPoint = int(len(ldata) * fraction)
     return ldata[:breakPoint], ldata[breakPoint:]
 
-error_test1 = np.zeros((len(fractions), numRepeat))
+errorTest = np.zeros((numSets, len(fractions), numRepeat))
 for f in range(len(fractions)):
     for r in range(numRepeat):
-        monk1train, monk1val = partition(m.monk1, fractions[f])
-        tree1init = fun.buildTree(monk1train, m.attributes)
+        for s in range(numSets):
+            monktrain, monkval = partition(dset[s], fractions[f])
+            treeInit = fun.buildTree(monktrain, m.attributes)
 
-        tree_curr = tree1init
-        error_curr = 1 - fun.check(tree_curr, monk1val)
-        while True:
-            alternatives = fun.allPruned(tree_curr)
-            error = []
-            
-            for i in range(len(alternatives)):
-                error.append(1-fun.check(alternatives[i], monk1val))
+            treeCurr = treeInit
+            errorCurr = 1 - fun.check(treeCurr, monkval)
+            while True:
+                alternatives = fun.allPruned(treeCurr)
+                error = []
+                
+                for i in range(len(alternatives)):
+                    error.append(1-fun.check(alternatives[i], monkval))
 
-            if error_curr > np.min(error):
-                # print("curr error: ", np.min(error))
-                idx = np.argmin(error) # the tree that performs best on val set
-                tree_curr = alternatives[idx]
-                error_curr = np.min(error)
-            else:
-                break
+                if errorCurr > np.min(error):
+                    # print("curr error: ", np.min(error))
+                    idx = np.argmin(error) # the tree that performs best on val set
+                    treeCurr = alternatives[idx]
+                    errorCurr = np.min(error)
+                else:
+                    break
 
-        error_test1[f,r] = 1 - fun.check(tree_curr, m.monk1test)
+            errorTest[s,f,r] = 1 - fun.check(treeCurr, dsetTest[s])
 
 # mean and variance of error for Monk-1
-mean1 = np.mean(error_test1, axis=1)
-var1 = np.var(error_test1, axis=1)
+mean1 = np.mean(errorTest[0,:,:], axis=1)
+var1 = np.var(errorTest[0,:,:], axis=1)
 std1 = np.sqrt(var1)
+mean2 = np.mean(errorTest[1,:,:], axis=1)
+var2 = np.var(errorTest[1,:,:], axis=1)
+std2 = np.sqrt(var2)
 
 # plots
-plt.errorbar(fractions, mean1, std1, linestyle='-', marker='*', ecolor='r')
+_, caps1, bars1 = plt.errorbar(fractions, mean1, std1, linestyle='-', color='b', marker='*', ecolor='b', capsize=2, capthick=2, label="monk1")
+_, caps2, bars2 = plt.errorbar(fractions, mean2, std2, linestyle='-', color='r', marker='*', ecolor='r', capsize=2, capthick=2, label="monk3")
+[bar1.set_alpha(0.3) for bar1 in bars1]
+[cap1.set_alpha(0.3) for cap1 in caps1]
+[bar2.set_alpha(0.3) for bar2 in bars2]
+[cap2.set_alpha(0.3) for cap2 in caps2]
+
+print("\nASSIGNMENT 7: \nsee the plots of dtree pruning: ")
+plt.title("Decision tree pruning - Classification error on the test set")
+plt.xlabel("Fraction of training data")
+plt.ylabel("Error")
+plt.legend(loc="upper right")
+plt.grid(linestyle='--')
 plt.show()
