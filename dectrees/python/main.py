@@ -2,7 +2,7 @@
 """
 Created on Mon Jan 23 20:56:57 2023
 
-@author: joshu
+@author: joshu, yifei
 """
 
 import monkdata as m
@@ -40,23 +40,6 @@ for i in range(3):
     print("For dataset monk{}, node 0 in Layer 0 can be splitted by attribute {}.".format(i+1, m.attributes[splitAttri_l0[i]].name))
 
 ##### CHAPTER 5 ##############################################################
-# not sure if this is needed for the presentation
-# not sure if it is correct either
-
-# # split dataset1 into two parts
-# monk11 = fun.select(m.monk1, m.attributes[4], 1)
-# monk12 = fun.select(m.monk1, m.attributes[4], 2)
-# monk12 = monk12 + fun.select(m.monk1, m.attributes[4], 3)
-# monk12 = monk12 + fun.select(m.monk1, m.attributes[4], 4)
-
-# #compute information gain on the nodes
-# G_monk1 = np.zeros((2,6))
-
-# for i in range (0,6):
-#     G_monk1[0,i] = fun.averageGain(monk11, m.attributes[i])
-#     G_monk1[1,i] = fun.averageGain(monk12, m.attributes[i])
-
-# print(G_monk1)
 
 # split dataset1 into 4 parts based on attribute 5
 splitAttri_l0_monk1 = splitAttri_l0[0]
@@ -83,6 +66,20 @@ for i in range(NumValAttr5-1):
 # build and draw tree with predefined function
 # draw.drawTree(fun.buildTree(m.monk1, m.attributes, 2))
 
+# # split dataset1 into two parts
+# monk11 = fun.select(m.monk1, m.attributes[4], 1)
+# monk12 = fun.select(m.monk1, m.attributes[4], 2)
+# monk12 = monk12 + fun.select(m.monk1, m.attributes[4], 3)
+# monk12 = monk12 + fun.select(m.monk1, m.attributes[4], 4)
+
+# #compute information gain on the nodes
+# G_monk1 = np.zeros((2,6))
+
+# for i in range (0,6):
+#     G_monk1[0,i] = fun.averageGain(monk11, m.attributes[i])
+#     G_monk1[1,i] = fun.averageGain(monk12, m.attributes[i])
+
+# print(G_monk1)
 
 ##### ASSIGNMENT 5  ##########################################################
 # build trees
@@ -109,7 +106,6 @@ print("The bias–variance tradeoff is the property of a model that the variance
 
 ##### ASSIGNMENT 7 ###########################################################
 fractions = [.3, .4, .5, .6, .7, .8]
-# fraction = .8
 numRepeat = 30
 dset = [m.monk1, m.monk3]
 dsetTest = [m.monk1test, m.monk3test]
