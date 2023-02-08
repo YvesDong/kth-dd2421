@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
 
-# generate datapoints
+# GENERATE DATAPOINTS ###############################################################################
 Num = 20 # number of data points
 classA = np.concatenate((np.random.randn(int(Num/2), 2)*0.2 + [1.5, 0.5], np.random.randn(int(Num/2), 2)*0.2 + [-1.5, 0.5]))
 classB = np.random.randn(Num, 2)*0.2 + [0.0, -0.5]
@@ -20,13 +20,18 @@ random.shuffle(permute)
 inputs = inputs[permute,:]
 targets = targets[permute]
 
-# plot data
+# PLOT DATA ########################################################################################
 plt.plot([p[0] for p in classA], [p[1] for p in classA], 'b.')
 plt.plot([p[0] for p in classB], [p[1] for p in classB], 'r.')
 
 plt.axis('equal')
 plt.savefig('svmplot.pdf')
 plt.show()
+
+
+# OPTIMIZATION #####################################################################################
+
+# This part needs to be worked on 
 
 # pre compute kernel matrix P
 P = fun.kernelMatrix(N, targets, inputs)
@@ -37,12 +42,12 @@ start = np.zeros((N))
 b = np.array([0,C])
 bounds = [(0, C) for b in range(N)]
 
-constraints = {'type':'eq', 'fun':fun.zerofun}
+constraints = {'type':'eq', 'fun':fun.zerofun   }
 XC = [constraints for b in constraints]
 
 ret = minimize(fun.objective, start, bounds, constraints)
 
-# plot decision boundary
+# PLOT DECISION BOUNDARIES ########################################################################
 xgrid = np.linspace(-5, 5)
 ygrid = np.linspace(-4, 4)
 
