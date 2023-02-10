@@ -4,6 +4,8 @@ import random, math
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize
 
+def zerofun(alpha):
+    return np.dot(alpha,targets)
 
 # GENERATE DATAPOINTS ###############################################################################
 Num = 20 # number of data points
@@ -26,31 +28,46 @@ plt.plot([p[0] for p in classB], [p[1] for p in classB], 'r.')
 
 plt.axis('equal')
 plt.savefig('svmplot.pdf')
-plt.show()
-
+# plt.show()
 
 # OPTIMIZATION #####################################################################################
 
-# This part needs to be worked on 
-
 # pre compute kernel matrix P
-P = fun.kernelMatrix(N, targets, inputs)
+p = 2 #polynomial order if kerneltype is poly
+fun.kernelMatrix(N, targets, inputs)  # kernel type to be changed in function definition
 
-# modeling
 C = None # slack variable
-start = np.zeros((N))
-b = np.array([0,C])
-bounds = [(0, C) for b in range(N)]
+start = np.zeros(N)
+B = [(0, C) for b in range(N)]
+XC = {'type':'eq', 'fun':zerofun}
 
-constraints = {'type':'eq', 'fun':fun.zerofun   }
-XC = [constraints for b in constraints]
+ret = minimize(fun.objective, start, bounds=B, constraints=XC)
+if (ret['success'] == True):
+    print("Optimization successful!")
+else:
+    print("Optimization failed!")
+    exit()
 
-ret = minimize(fun.objective, start, bounds, constraints)
+# extract support vectors and calculate threshold 
+alpha = ret['x']
+supportvectors = []
 
-# PLOT DECISION BOUNDARIES ########################################################################
+for i in range(N):
+    if (alpha[i] > pow(10,-5)):
+        # print(alpha[i], inputs[i], targets[i])
+        supportvectors.append([alpha[i], inputs[i], targets[i]])
+
+b = fun.threshold(supportvectors, C)
+print("threshold b = ", b)
+
+# PLOT DECISION BOUNDARIES AND DATAPOINTS ##########################################################
 xgrid = np.linspace(-5, 5)
 ygrid = np.linspace(-4, 4)
 
-# grid =np.array([[indicator(x,y) for x in xgrid] for y in ygrid])
+grid = np.array([[fun.indicator(x, y, supportvectors, b) for x in xgrid] for y in ygrid])
 
-# plt.contour(xgrid, ygrid, grid, (-1.0,0.0,1.0), colors=('red','black','blue'), linewidths=(1,3,1))
+plt.contour(xgrid, ygrid, grid, (-1.0,0.0,1.0), colors=('red','black','blue'), linewidths=(1,3,1))
+plt.plot([p[0] for p in classA], [p[1] for p in classA], 'b.')
+plt.plot([p[0] for p in classB], [p[1] for p in classB], 'r.')
+plt.axis('equal')
+plt.show()
