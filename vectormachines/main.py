@@ -23,15 +23,6 @@ def generate_data(Num, pos1=[-1.5, 0.5]):
 
     return inputs, targets, classA, classB
 
-# PLOT GENERATED DATA ##############################################################################
-
-# plt.plot([p[0] for p in classA], [p[1] for p in classA], 'b.')
-# plt.plot([p[0] for p in classB], [p[1] for p in classB], 'r.')
-
-# plt.axis('equal')
-# plt.show()
-# plt.savefig('svmplot.pdf')
-
 # OPTIMIZATION #####################################################################################
 
 def training(kernel="linKernel", p=2, sigma=1):
@@ -94,11 +85,6 @@ if __name__ == "__main__":
     p = 3
     sigma = 1
     pos1 = [-1.5, 0.5]
-
-    # inputs, targets, classA, classB = generate_data(Num)
-    # alpha = training(kernel=kernel, p=p, sigma=sigma)
-    # supportvectors, b = extractSV(C=C, kernel=kernel, p=p, sigma=sigma)
-    # plot_results(kernel=kernel, p=p, sigma=sigma)
 
     ## exploring and reporting
     # numList = [20, 80, 160, 320] # discussion 1 - change Num
