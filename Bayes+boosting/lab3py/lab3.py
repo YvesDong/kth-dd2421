@@ -44,7 +44,10 @@ def computePrior(labels, W=None):
 
     # TODO: compute the values of prior for each class!
     # ==========================
-    
+    for jdx, c in enumerate(classes):
+        idx = np.where(labels==c)[0]
+        # xlc = X[idx,:]
+        prior[jdx,0] = idx.shape[0] / Npts
     # ==========================
 
     return prior
@@ -68,7 +71,14 @@ def mlParams(X, labels, W=None):
 
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
-    
+    for jdx, c in enumerate(classes):
+        idx = np.where(labels==c)[0]
+        xlc = X[idx,:]
+        mu[jdx,:] = np.sum(xlc, axis=0) / idx.shape[0]
+
+        xpow = np.power(xlc-mu[jdx,:], 2)
+        xsum = np.sum(xpow, axis=0) / idx.shape[0]
+        sigma[jdx,:,:] = np.diag(xsum)
     # ==========================
 
     return mu, sigma
@@ -86,7 +96,12 @@ def classifyBayes(X, prior, mu, sigma):
 
     # TODO: fill in the code to compute the log posterior logProb!
     # ==========================
-    
+    for i in range(Nclasses):
+        term1 = -.5 * np.log(np.abs(np.prod(np.diag(sigma[i]))))
+        term2 = -.5 * np.sum((X-mu[i,:])**2 * np.reciprocal(np.diag(sigma[i])), axis=1) # (N,)
+        term3 = np.log(prior[i,0])
+
+        logProb[i,:] = term1 + term2 + term3
     # ==========================
     
     # one possible way of finding max a-posteriori once
@@ -119,23 +134,19 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-X, labels = genBlobs(centers=5)
+X, labels = genBlobs(centers=6)
 mu, sigma = mlParams(X,labels)
 plotGaussian(X,labels,mu,sigma)
 
 
 # Call the `testClassifier` and `plotBoundary` functions for this part.
+print('testing iris: ')
+testClassifier(BayesClassifier(), dataset='iris', split=0.7)
+print('testing vowel: ')
+testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
 
-
-#testClassifier(BayesClassifier(), dataset='iris', split=0.7)
-
-
-
-#testClassifier(BayesClassifier(), dataset='vowel', split=0.7)
-
-
-
-#plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+plotBoundary(BayesClassifier(), dataset='iris',split=0.7)
+plotBoundary(BayesClassifier(), dataset='vowel',split=0.7)
 
 
 # ## Boosting functions to implement
