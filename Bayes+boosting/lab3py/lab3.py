@@ -44,10 +44,19 @@ def computePrior(labels, W=None):
 
     # TODO: compute the values of prior for each class!
     # ==========================
+    # # Assignment 2
+    # for jdx, c in enumerate(classes):
+    #     idx = np.where(labels==c)[0]
+    #     # xlc = X[idx,:]
+    #     prior[jdx,0] = idx.shape[0] / Npts
+
+    # # Assignment 5.1
+    Wsum = np.sum(W)
     for jdx, c in enumerate(classes):
         idx = np.where(labels==c)[0]
-        # xlc = X[idx,:]
-        prior[jdx,0] = idx.shape[0] / Npts
+        wlc = W[idx,:]
+        prior[jdx,0] = np.sum(wlc) / Wsum
+
     # ==========================
 
     return prior
@@ -188,12 +197,20 @@ def trainBoost(base_classifier, X, labels, T=10):
         classifiers.append(base_classifier.trainClassifier(X, labels, wCur))
 
         # do classification for each point
-        vote = classifiers[-1].classify(X)
+        vote = classifiers[-1].classify(X) # (N,)
 
         # TODO: Fill in the rest, construct the alphas etc.
         # ==========================
-        
-        # alphas.append(alpha) # you will need to append the new alpha
+        delta = np.array(vote==labels, dtype=int)
+        epsilon = np.sum(wCur*(1-delta))
+        alpha = .5 * (np.log(1-epsilon)-np.log(epsilon))
+        alphas.append(alpha) # you will need to append the new alpha
+
+        # update w
+        delta = int((delta-.5) * 2)
+        wCur = wCur * np.exp(delta*alpha)
+        wCurSum = np.sum(wCur)
+        wCur /= wCurSum
         # ==========================
         
     return classifiers, alphas
