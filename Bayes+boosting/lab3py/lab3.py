@@ -71,13 +71,26 @@ def mlParams(X, labels, W=None):
 
     # TODO: fill in the code to compute mu and sigma!
     # ==========================
+    # # Assignment 1
+    # for jdx, c in enumerate(classes):
+    #     idx = np.where(labels==c)[0]
+    #     xlc = X[idx,:]
+    #     mu[jdx,:] = np.sum(xlc, axis=0) / idx.shape[0]
+
+    #     xpow = np.power(xlc-mu[jdx,:], 2)
+    #     xsum = np.sum(xpow, axis=0) / idx.shape[0]
+    #     sigma[jdx,:,:] = np.diag(xsum)
+
+    # Assignment 4
     for jdx, c in enumerate(classes):
         idx = np.where(labels==c)[0]
         xlc = X[idx,:]
-        mu[jdx,:] = np.sum(xlc, axis=0) / idx.shape[0]
+        wlc = W[idx,:]
+        wsum = np.sum(wlc)
+        mu[jdx,:] = np.sum(xlc*wlc, axis=0) / wsum
 
         xpow = np.power(xlc-mu[jdx,:], 2)
-        xsum = np.sum(xpow, axis=0) / idx.shape[0]
+        xsum = np.sum(xpow*wlc, axis=0) / wsum
         sigma[jdx,:,:] = np.diag(xsum)
     # ==========================
 
@@ -134,7 +147,7 @@ class BayesClassifier(object):
 # Call `genBlobs` and `plotGaussian` to verify your estimates.
 
 
-X, labels = genBlobs(centers=6)
+X, labels = genBlobs(centers=4)
 mu, sigma = mlParams(X,labels)
 plotGaussian(X,labels,mu,sigma)
 
