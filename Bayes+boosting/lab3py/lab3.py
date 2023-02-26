@@ -22,7 +22,6 @@ from imp import reload
 from labfuns import *
 import random
 
-
 # ## Bayes classifier functions to implement
 # 
 # The lab descriptions state what each function should do.
@@ -97,7 +96,7 @@ def mlParams(X, labels, W=None):
         wlc = W[idx,:]
         wsum = np.sum(wlc)
         mu[jdx,:] = np.sum(xlc*wlc, axis=0) / wsum
-
+        
         xpow = np.power(xlc-mu[jdx,:], 2)
         xsum = np.sum(xpow*wlc, axis=0) / wsum
         sigma[jdx,:,:] = np.diag(xsum)
@@ -201,14 +200,18 @@ def trainBoost(base_classifier, X, labels, T=10):
 
         # TODO: Fill in the rest, construct the alphas etc.
         # ==========================
+        epsilon = 0
         delta = np.array(vote==labels, dtype=int)
-        epsilon = np.sum(wCur*(1-delta))
+        epsilon = np.sum(np.transpose(wCur)*(1-delta))
         alpha = .5 * (np.log(1-epsilon)-np.log(epsilon))
         alphas.append(alpha) # you will need to append the new alpha
-
+        
         # update w
-        delta = int((delta-.5) * 2)
-        wCur = wCur * np.exp(delta*alpha)
+        wOld = wCur
+        # delta = (-1)**delta
+        # wCur = wOld * np.exp(alpha*delta)
+        for i in range(Npts):
+            wCur[i] = wOld[i] * np.exp(alpha*(-1)**(vote[i]==labels[i]))
         wCurSum = np.sum(wCur)
         wCur /= wCurSum
         # ==========================
@@ -233,7 +236,11 @@ def classifyBoost(X, classifiers, alphas, Nclasses):
         # TODO: implement classificiation when we have trained several classifiers!
         # here we can do it by filling in the votes vector with weighted votes
         # ==========================
-        
+        # accumulate votes from each classifier
+        for t in range(Ncomps):
+            classified = classifiers[t].classify(X)
+            for i in range(Npts):
+                votes[i][classified[i]] += alphas[t]
         # ==========================
 
         # one way to compute yPred after accumulating the votes
